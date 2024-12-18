@@ -1,0 +1,247 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+
+model User {
+  id                 String        @id @default(uuid())
+  password           String
+  name               String
+  email              String        @unique
+  status             UserStatus    @default(active)
+  isDelete           Boolean       @default(false)
+  role               UserRole      @default(user)
+  lastPasswordChange DateTime?
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+  userProfile        UserProfile[]
+  shop               Shop?
+  shopReview         ShopReview[]
+  shopFollow         ShopFollow[]
+  category           Category[]
+  subCategory        SubCategory[]
+  payment            Payment[]
+  productReview     ProductReview[]
+
+  @@map("users")
+}
+
+model UserProfile {
+  id            String     @id @default(uuid())
+  email         String     @unique
+  userId        String
+  user          User       @relation(fields: [userId], references: [id])
+  profilePhoto  String?
+  coverPhoto    String?
+  bio           String?
+  gender        Gender?
+  contactNumber String?
+  status        UserStatus @default(active)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  @@map("userProfiles")
+}
+
+model Shop {
+  id            String       @id @default(uuid())
+  name          String
+  vendorId      String       @unique
+  vendor        User         @relation(fields: [vendorId], references: [id])
+  description   String?
+  averageRating Int          @default(0)
+  isDelete      Boolean      @default(false)
+  logo          String?
+  shopType      String?
+  address       String?
+  contactNumber String?
+  isBlocked     Boolean       @default(false)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  shopReview    ShopReview[]
+  shopFollow    ShopFollow[]
+  product       Product[]
+  payment       Payment[]
+
+  @@map("shops")
+}
+
+model ShopReview {
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  shopId    String
+  shop      Shop     @relation(fields: [shopId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  details  String
+  rating   Int?
+  isDelete Boolean @default(false)
+
+  @@id([userId, shopId])
+  @@map("shopReviews")
+}
+
+model ShopFollow {
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  shopId    String
+  shop      Shop     @relation(fields: [shopId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isDelete  Boolean  @default(false)
+
+  @@id([userId, shopId])
+  @@map("shopFollows")
+}
+
+model Category {
+  id           String        @id @default(uuid())
+  categoryName String        @unique
+  adminId      String
+  admin        User          @relation(fields: [adminId], references: [id])
+  isDelete     Boolean       @default(false)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  subCategory  SubCategory[]
+  product      Product[]
+
+  @@map("categories")
+}
+
+model SubCategory {
+  id           String    @id @default(uuid())
+  categoryName String    @unique
+  adminId      String
+  admin        User      @relation(fields: [adminId], references: [id])
+  categoryId   String
+  category     Category  @relation(fields: [categoryId], references: [id])
+  isDelete     Boolean   @default(false)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  product      Product[]
+
+  @@map("subCategories")
+}
+
+
+model Product {
+  id                 String    @id @default(uuid())
+  productName        String
+  quantity           Int       @default(1)
+  isAvailable        Boolean   @default(true)
+  totalBuy           Int       @default(0)
+  price              Int
+  discount           Int?
+  promo              String?
+  isActivePromo      Boolean   @default(false)
+  isFlashSaleOffer   Boolean   @default(false)
+  flashSaleDiscount  Int?      @default(0)
+  flashSaleStartDate DateTime?
+  flashSaleEndDate   DateTime?
+  shopId             String
+  shop               Shop      @relation(fields: [shopId], references: [id])
+  description        String
+  totalSubmitRating  Int       @default(0)
+  averageRating      Int       @default(0)
+  totalUserGiveRating Int     @default(0)
+
+  images            String[]
+  categoryId        String
+  category          Category            @relation(fields: [categoryId], references: [id])
+  subCategoryId     String?
+  subCategory       SubCategory?        @relation(fields: [subCategoryId], references: [id])
+  isDelete          Boolean             @default(false)
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  paymentAndProduct PaymentAndProduct[]
+
+  @@map("products")
+}
+
+
+
+model ProductReview {
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  paymentId    String
+  payment      Payment     @relation(fields: [paymentId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userMessage  String?
+  shopMessage  String?
+  rating   Int?
+  isDelete Boolean @default(false)
+
+  @@id([userId, paymentId])
+  @@map("productReviews")
+}
+
+model PaymentAndProduct {
+  id          String   @id @default(uuid())
+  productId   String
+  product     Product  @relation(fields: [productId], references: [id])
+  paymentId   String
+  payment     Payment? @relation(fields: [paymentId], references: [id])
+  selectQuantity Int
+  payTotalAmount Int
+  paymentStatus PaymentStatus @default(pending)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // @@unique([paymentId, productId]) // Ensures unique product-payment pairing
+}
+
+model Payment {
+  id            String   @id @default(uuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id])
+  shopId        String
+  shop          Shop     @relation(fields: [shopId], references: [id])
+  amount        Int
+  mer_txnid        String?
+  txId          String
+  paymentStatus PaymentStatus @default(pending)
+  payment_type  String?
+  approval_code String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  paymentAndProduct PaymentAndProduct[]
+   productReview     ProductReview[]
+}
+
+enum UserRole {
+  user
+  admin
+  vendor
+}
+
+enum UserStatus {
+  active
+  blocked
+}
+
+enum Gender {
+  male
+  female
+}
+
+enum PaymentStatus {
+  pending
+  cancel
+  confirm
+}
