@@ -1,19 +1,21 @@
-import jwt, { JwtPayload, Secret } from 'jsonwebtoken';
+import { Injectable } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import { JwtPayload } from 'jsonwebtoken';
 
-const generateToken = (payload: any, secret: Secret, expiresIn: string) => {
-  const token = jwt.sign(payload, secret, {
-    algorithm: 'HS256',
-    expiresIn,
-  });
+@Injectable()
+export class JwtHelperService {
+  constructor(private readonly jwtService: JwtService) {}
 
-  return token;
-};
+  generateToken(payload: any, expiresIn: string): string {
+    return this.jwtService.sign(payload, { expiresIn });
+  }
 
-const verifyToken = (token: string, secret: Secret) => {
-  return jwt.verify(token, secret) as JwtPayload;
-};
-
-export const jwtHelpers = {
-  generateToken,
-  verifyToken,
-};
+  verifyToken(token: string): JwtPayload {
+    try {
+      return this.jwtService.verify(token) as JwtPayload;
+    } catch (error) {
+      console.log(error);
+      throw new Error('Invalid Token');
+    }
+  }
+}
