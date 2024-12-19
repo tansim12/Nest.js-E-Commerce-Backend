@@ -66,6 +66,22 @@ export class AuthController {
       next(error);
     }
   }
+  @Post('refresh-token')
+  async refreshToken(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Next() next: NextFunction,
+  ) {
+    try {
+      const { refreshToken } = req.cookies;
+      const result = await this.authService.refreshTokenDB(refreshToken);
+      return res.send(
+        successResponse(result, HttpStatus.OK, 'refresh token send'),
+      );
+    } catch (error) {
+      next(error);
+    }
+  }
 
   @Get()
   findAll() {

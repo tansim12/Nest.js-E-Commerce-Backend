@@ -23,7 +23,6 @@ export class JwtHelperService {
 
   // Token Verify Function
   verifyToken(token: string, token_secret: string): any {
-    const secret = this.configService.get<string>(token_secret);
-    return this.jwtService.verify(token, { secret });
+    return this.jwtService.verify(token, { secret: token_secret });
   }
 }

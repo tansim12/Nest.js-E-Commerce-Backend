@@ -101,6 +101,44 @@ export class AuthService {
     };
   }
 
+  async refreshTokenDB(token: any) {
+    // console.log(token);
+
+    let decodedData;
+    try {
+      decodedData = this.jwtHelperService.verifyToken(
+        token,
+        this.configService.get('jwt.refresh_token_secret'),
+      );
+    } catch (err) {
+      throw new HttpException(
+        err?.message || 'You are not authorized!',
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+
+    const userData = await this.prisma.user.findUniqueOrThrow({
+      where: {
+        email: decodedData.email,
+        status: UserStatus.active,
+      },
+    });
+
+    const accessToken = this.jwtHelperService.generateToken(
+      {
+        id: userData.id,
+        email: userData.email,
+        role: userData.role,
+      },
+      this.configService.get('jwt.jwt_secret'),
+      this.configService.get('jwt.expires_in'),
+    );
+
+    return {
+      accessToken,
+    };
+  }
+
   findAll() {
     return `This action returns all auth`;
   }
