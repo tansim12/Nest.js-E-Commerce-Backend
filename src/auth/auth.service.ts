@@ -32,30 +32,36 @@ export class AuthService {
           userId: userInfo.id,
         },
       });
-      return userInfo;
+
+      if (!userInfo) {
+        throw new HttpException(
+          'Something went wrong !',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
+      const accessToken = this.jwtHelperService.generateToken(
+        {
+          id: userInfo.id,
+          email: userInfo?.email,
+          role: userInfo?.role,
+        },
+        this.configService.get('jwt.jwt_secret'),
+        this.configService.get('jwt.expires_in'),
+      );
+
+      const refreshToken = this.jwtHelperService.generateToken(
+        { id: userInfo.id, email: userInfo?.email, role: userInfo?.role },
+        this.configService.get('jwt.refresh_token_secret'),
+        this.configService.get('jwt.refresh_token_expires_in'),
+      );
+      return {
+        accessToken,
+        refreshToken,
+      };
     });
 
-    if (!result) {
-      throw new HttpException('Something went wrong !', HttpStatus.BAD_REQUEST);
-    }
-    const accessToken = this.jwtHelperService.generateToken(
-      {
-        id: result.id,
-        email: result?.email,
-        role: result?.role,
-      },
-      '30d',
-    );
-    console.log(accessToken);
-
-    const refreshToken = this.jwtHelperService.generateToken(
-      { id: result.id, email: result?.email, role: result?.role },
-      '30d',
-    );
-    return {
-      accessToken,
-      refreshToken,
-    };
+    return result;
   }
 
   async loginUserDB(payload: any) {
@@ -75,17 +81,19 @@ export class AuthService {
       throw new HttpException('Password incorrect!', HttpStatus.NOT_ACCEPTABLE);
     }
     const accessToken = this.jwtHelperService.generateToken(
-      { id: userData.id, email: userData.email, role: userData.role },
-      '30d',
+      {
+        id: userData.id,
+        email: userData?.email,
+        role: userData?.role,
+      },
+      this.configService.get('jwt.jwt_secret'),
+      this.configService.get('jwt.expires_in'),
     );
 
     const refreshToken = this.jwtHelperService.generateToken(
-      {
-        id: userData.id,
-        email: userData.email,
-        role: userData.role,
-      },
-      '30d',
+      { id: userData.id, email: userData?.email, role: userData?.role },
+      this.configService.get('jwt.refresh_token_secret'),
+      this.configService.get('jwt.refresh_token_expires_in'),
     );
     return {
       accessToken,
