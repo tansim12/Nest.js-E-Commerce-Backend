@@ -112,7 +112,7 @@ export class AuthService {
       );
     } catch (err) {
       throw new HttpException(
-        err?.message || 'You are not authorized!',
+        err?.message || 'You are not authorized',
         HttpStatus.UNAUTHORIZED,
       );
     }
