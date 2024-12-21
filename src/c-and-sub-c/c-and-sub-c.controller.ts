@@ -4,6 +4,7 @@ import {
   HttpStatus,
   Next,
   Post,
+  Put,
   Req,
   Res,
   UseGuards,
@@ -29,7 +30,7 @@ export class CAndSubCController {
     new ZodValidationPipe(categoryAndSubCategorySchema.createCategorySchema),
   )
   @Roles(UserRole.admin)
-  async updateMyProfile(
+  async createCategory(
     @Req() req: Request,
     @Res() res: Response,
     @Next() next: NextFunction,
@@ -41,7 +42,33 @@ export class CAndSubCController {
         body,
       );
       return res.send(
-        successResponse(result, HttpStatus.OK, 'create category my profile'),
+        successResponse(result, HttpStatus.OK, 'create category '),
+      );
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  // update category
+  @Put('/update-category/:categoryId')
+  @UseGuards(AuthGuard)
+  @Roles(UserRole.admin)
+  @UsePipes(
+    new ZodValidationPipe(categoryAndSubCategorySchema.updateCategorySchema),
+  )
+  async updateCategory(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Next() next: NextFunction,
+    @Body() body: any,
+  ) {
+    try {
+      const result = await this.cAndSubCService.updateCategoryDB(
+        req?.params?.categoryId,
+        body,
+      );
+      return res.send(
+        successResponse(result, HttpStatus.OK, 'update category '),
       );
     } catch (error) {
       next(error);
