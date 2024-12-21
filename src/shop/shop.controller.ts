@@ -113,4 +113,29 @@ export class ShopController {
       next(error);
     }
   }
+
+  //  shop following
+  @Post('/user/shop-following')
+  @UseGuards(AuthGuard)
+  @UsePipes(new ZodValidationPipe(shopFollowSchema.createShopFollowSchema))
+  @Roles(UserRole.admin, UserRole.user, UserRole.vendor)
+  async shopFollowing(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Next() next: NextFunction,
+    @Body() body: any,
+  ) {
+    try {
+      const result = await this.shopService.shopFollowingDB(req?.user, body);
+      return res.send(
+        successResponse(
+          result,
+          HttpStatus.OK,
+          'Shop Following successfully done',
+        ),
+      );
+    } catch (error) {
+      next(error);
+    }
+  }
 }
