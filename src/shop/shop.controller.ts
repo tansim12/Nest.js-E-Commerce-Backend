@@ -214,4 +214,20 @@ export class ShopController {
       next(error);
     }
   }
+  // isShopExistDb
+  @Get('/vendor/check/isExist-shop')
+  @UseGuards(AuthGuard)
+  @Roles(UserRole.vendor)
+  async isShopExist(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Next() next: NextFunction,
+  ) {
+    try {
+      const result = await this.shopService.isShopExistDb(req?.user);
+      res.send(successResponse(result, HttpStatus.OK, 'Find shop'));
+    } catch (error) {
+      next(error);
+    }
+  }
 }
