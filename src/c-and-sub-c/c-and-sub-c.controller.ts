@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   HttpStatus,
   Next,
   Post,
@@ -18,6 +19,8 @@ import { successResponse } from 'src/Common/Re-useable/successResponse';
 import { AuthGuard } from 'src/Common/guard/auth.guard';
 import { ZodValidationPipe } from 'src/Common/pipes/zodValidatiionPipe';
 import { categoryAndSubCategorySchema } from './c-and-sub-c.zodSchema';
+import pick from 'src/Common/shared/pick';
+import { categoryFilterAbleFields } from './c-and-sub-c.const';
 
 @Controller('api/cAndSubC')
 export class CAndSubCController {
@@ -94,6 +97,55 @@ export class CAndSubCController {
       );
       return res.send(
         successResponse(result, HttpStatus.OK, 'create sub-category '),
+      );
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  // update sub category
+  @Put('/update-sub-category/:subCategoryId')
+  @UseGuards(AuthGuard)
+  @Roles(UserRole.admin)
+  @UsePipes(
+    new ZodValidationPipe(categoryAndSubCategorySchema.updateSubCategorySchema),
+  )
+  async updateSubCategory(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Next() next: NextFunction,
+    @Body() body: any,
+  ) {
+    try {
+      const result = await this.cAndSubCService.updateSubCategoryDB(
+        req?.params?.subCategoryId,
+        body,
+      );
+      return res.send(
+        successResponse(result, HttpStatus.OK, 'update sub category '),
+      );
+    } catch (error) {
+      next(error);
+    }
+  }
+  // all category find
+  @Get('/category')
+  @UseGuards(AuthGuard)
+  @Roles(UserRole.admin)
+  async findAllCategory(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Next() next: NextFunction,
+  ) {
+    try {
+      const filters = pick(req.query, categoryFilterAbleFields);
+      const options = pick(req.query, ['limit', 'page', 'sortBy', 'sortOrder']);
+      const result = await this.cAndSubCService.findAllCategoryDB(
+        filters,
+        options,
+      );
+      return res.send(
+        successResponse(result, HttpStatus.OK, 'find all category '),
       );
     } catch (error) {
       next(error);
