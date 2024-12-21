@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'src/prisma.service';
 import { IPaginationOptions } from 'src/Common/interface/pagination';
 import { paginationHelper } from 'src/Common/helper/paginationHelper';
 import { userSearchAbleFields } from './user.const';
-import { Prisma } from '@prisma/client';
+import { Prisma, UserStatus } from '@prisma/client';
 
 @Injectable()
 export class UserService {
@@ -74,5 +74,129 @@ export class UserService {
       meta,
       result,
     };
+  }
+
+  async adminUpdateUserDB(userId: string, payload: any) {
+    if (payload?.email || payload.password) {
+      throw new HttpException(
+        "You Can't change email or password",
+        HttpStatus.NOT_ACCEPTABLE,
+      );
+    }
+    const result = await this.prisma.$transaction(async (tx) => {
+      const userInfo = await tx.user.update({
+        where: {
+          id: userId,
+        },
+        data: payload,
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          isDelete: true,
+          role: true,
+          status: true,
+          updatedAt: true,
+        },
+      });
+      await tx.userProfile.update({
+        where: {
+          email: userInfo.email,
+        },
+        data: {
+          status: payload?.status,
+        },
+      });
+      return userInfo;
+    });
+
+    return result;
+  }
+
+  async findMyProfileDB(tokenUser: any) {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        email: tokenUser?.email,
+        isDelete: false,
+        status: UserStatus.active,
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        status: true,
+        isDelete: true,
+        role: true,
+        createdAt: true,
+        updatedAt: true,
+        userProfile: true,
+        shopFollow: {
+          select: {
+            shop: {
+              select: {
+                name: true,
+                logo: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    return user;
+  }
+  async updateMyProfileDB(tokenUser: any, body: any) {
+    const { name, ...payload } = body;
+    const user = await this.prisma.user.findUniqueOrThrow({
+      where: {
+        email: tokenUser.email,
+        isDelete: false,
+        status: UserStatus.active,
+      },
+    });
+
+    if (body.status || body.role) {
+      throw new HttpException(
+        "You can't change role and status",
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    if (name) {
+      await this.prisma.user.update({
+        where: { email: user.email },
+        data: {
+          name,
+        },
+      });
+    }
+    const userProfile = await this.prisma.userProfile.update({
+      where: { email: user.email },
+      data: payload,
+    });
+
+    return userProfile;
+  }
+  async getSingleUserDB(paramsId: string) {
+    const result = await this.prisma.user.findUniqueOrThrow({
+      where: {
+        id: paramsId,
+        isDelete: false,
+        status: UserStatus.active,
+      },
+      select: {
+        email: true,
+        id: true,
+        role: true,
+        name: true,
+        isDelete: true,
+        createdAt: true,
+        lastPasswordChange: true,
+        status: true,
+        updatedAt: true,
+        userProfile: true,
+      },
+    });
+    return result;
   }
 }

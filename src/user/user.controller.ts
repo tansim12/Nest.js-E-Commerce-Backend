@@ -37,4 +37,21 @@ export class UserController {
       next(error);
     }
   }
+  @Get('/find/my-profile')
+  @UseGuards(AuthGuard)
+  @Roles(UserRole.admin, UserRole.vendor, UserRole.user)
+  async getSingleUser(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Next() next: NextFunction,
+  ) {
+    try {
+      const result = await this.userService.findMyProfileDB(req?.user);
+      return res.send(
+        successResponse(result, HttpStatus.OK, 'Find my profile'),
+      );
+    } catch (error) {
+      next(error);
+    }
+  }
 }
