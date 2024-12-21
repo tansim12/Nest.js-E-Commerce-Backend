@@ -32,7 +32,7 @@ export class AuthGuard implements CanActivate {
 
     try {
       const decoded = this.jwtService.verify(token, {
-        secret: process.env.JWT_SECRET || 'your-secret-key',
+        secret: process.env.JWT_SECRET,
       });
 
       const { email } = decoded;
