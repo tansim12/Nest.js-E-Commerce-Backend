@@ -6,6 +6,7 @@ import {
   Res,
   Next,
   HttpStatus,
+  Put,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { AuthGuard } from 'src/Common/guard/auth.guard';
@@ -37,10 +38,33 @@ export class UserController {
       next(error);
     }
   }
+
+  // admin update user
+  @Put('/admin-update-user/:userId')
+  @UseGuards(AuthGuard)
+  @Roles(UserRole.admin)
+  async adminUpdateUser(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Next() next: NextFunction,
+  ) {
+    try {
+      const result = await this.userService.adminUpdateUserDB(
+        req?.params?.userId,
+        req?.body,
+      );
+      return res.send(
+        successResponse(result, HttpStatus.OK, 'admin update profile'),
+      );
+    } catch (error) {
+      next(error);
+    }
+  }
+  // find my profile
   @Get('/find/my-profile')
   @UseGuards(AuthGuard)
   @Roles(UserRole.admin, UserRole.vendor, UserRole.user)
-  async getSingleUser(
+  async findMyProfile(
     @Req() req: Request,
     @Res() res: Response,
     @Next() next: NextFunction,
@@ -49,6 +73,43 @@ export class UserController {
       const result = await this.userService.findMyProfileDB(req?.user);
       return res.send(
         successResponse(result, HttpStatus.OK, 'Find my profile'),
+      );
+    } catch (error) {
+      next(error);
+    }
+  }
+  // update my profile
+  @Put('/update-my-profile')
+  @UseGuards(AuthGuard)
+  @Roles(UserRole.admin, UserRole.vendor, UserRole.user)
+  async updateMyProfile(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Next() next: NextFunction,
+  ) {
+    try {
+      const result = await this.userService.updateMyProfileDB(
+        req?.user,
+        req?.body,
+      );
+      return res.send(
+        successResponse(result, HttpStatus.OK, 'update my profile'),
+      );
+    } catch (error) {
+      next(error);
+    }
+  }
+  // get single user
+  @Get('/:userId')
+  async getSingleUser(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Next() next: NextFunction,
+  ) {
+    try {
+      const result = await this.userService.getSingleUserDB(req.params?.userId);
+      return res.send(
+        successResponse(result, HttpStatus.OK, 'update my profile'),
       );
     } catch (error) {
       next(error);
