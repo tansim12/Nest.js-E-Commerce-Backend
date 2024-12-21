@@ -214,4 +214,25 @@ export class CAndSubCController {
       next(error);
     }
   }
+
+  // publicFindAllCategoryWithSubCategory
+  @Get('/')
+  async publicFindAllCategoryWithSubCategory(
+    @Res() res: Response,
+    @Next() next: NextFunction,
+  ) {
+    try {
+      const result =
+        await this.cAndSubCService.publicFindAllCategoryWithSubCategoryDB();
+      return res.send(
+        successResponse(
+          result,
+          HttpStatus.OK,
+          'All Category and sub category find ',
+        ),
+      );
+    } catch (error) {
+      next(error);
+    }
+  }
 }
