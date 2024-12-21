@@ -6,6 +6,8 @@ import {
   Next,
   HttpStatus,
   UseGuards,
+  UsePipes,
+  Body,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 
@@ -15,6 +17,8 @@ import { ConfigService } from '@nestjs/config';
 import { AuthGuard } from 'src/Common/guard/auth.guard';
 import { Roles } from 'src/Common/decorators/role.decorator';
 import { UserRole } from '@prisma/client';
+import { ZodValidationPipe } from 'src/Common/pipes/zodValidatiionPipe';
+import { authSchemas } from './auth.zodSchema';
 
 @Controller('api/auth')
 export class AuthController {
@@ -24,26 +28,28 @@ export class AuthController {
   ) {}
 
   @Post('signup')
+  @UsePipes(new ZodValidationPipe(authSchemas.signupSchema))
   async signup(
-    @Req() req: Request,
     @Res() res: Response,
     @Next() next: NextFunction,
+    @Body() body: any,
   ) {
     try {
-      const result = await this.authService.signupDB(req?.body);
+      const result = await this.authService.signupDB(body);
       return res.send(successResponse(result, HttpStatus.OK, 'Signup done'));
     } catch (error) {
       next(error);
     }
   }
   @Post('login')
+  @UsePipes(new ZodValidationPipe(authSchemas.loginSchema))
   async loginUser(
-    @Req() req: Request,
     @Res() res: Response,
     @Next() next: NextFunction,
+    @Body() body: any,
   ) {
     try {
-      const result = await this.authService.loginUserDB(req?.body);
+      const result = await this.authService.loginUserDB(body);
 
       const { refreshToken } = result;
 
