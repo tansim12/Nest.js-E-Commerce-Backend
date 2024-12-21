@@ -6,6 +6,7 @@ import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import configuration from './Common/Config/configuration';
 // import { JwtModule } from '@nestjs/jwt';
+import { CAndSubCModule } from './c-and-sub-c/c-and-sub-c.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import configuration from './Common/Config/configuration';
     ConfigModule,
     AuthModule,
     UserModule,
+    CAndSubCModule,
   ],
   controllers: [AppController],
   providers: [AppService],
