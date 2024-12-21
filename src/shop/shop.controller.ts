@@ -177,4 +177,20 @@ export class ShopController {
       next(error);
     }
   }
+  // vendorFindHisShopDB
+  @Get('/vendor/vendor-my-shop')
+  @UseGuards(AuthGuard)
+  @Roles(UserRole.admin, UserRole.vendor)
+  async vendorFindHisShop(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Next() next: NextFunction,
+  ) {
+    try {
+      const result = await this.shopService.vendorFindHisShopDB(req?.user);
+      res.send(successResponse(result, HttpStatus.OK, 'Vendor Find his shop'));
+    } catch (error) {
+      next(error);
+    }
+  }
 }
