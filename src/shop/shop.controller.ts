@@ -87,4 +87,30 @@ export class ShopController {
       next(error);
     }
   }
+  // find single shop public
+  @Get('/:shopId')
+  async findSingleShopPublic(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Next() next: NextFunction,
+  ) {
+    try {
+      const filters = pick(req.query, []);
+      const options = pick(req.query, ['limit', 'page', 'sortBy', 'sortOrder']);
+      const result = await this.shopService.findSingleShopPublicDB(
+        req?.params?.shopId,
+        filters,
+        options,
+      );
+      return res.send(
+        successResponse(
+          result,
+          HttpStatus.OK,
+          'Single Shop find successfully done',
+        ),
+      );
+    } catch (error) {
+      next(error);
+    }
+  }
 }
