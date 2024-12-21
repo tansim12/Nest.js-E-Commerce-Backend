@@ -1,21 +1,20 @@
 import {
   Controller,
-  Get,
   Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
   Req,
   Res,
   Next,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { UpdateAuthDto } from './dto/update-auth.dto';
+
 import { NextFunction, Request, Response } from 'express';
 import { successResponse } from 'src/Common/Re-useable/successResponse';
 import { ConfigService } from '@nestjs/config';
+import { AuthGuard } from 'src/Common/guard/auth.guard';
+import { Roles } from 'src/Common/decorators/role.decorator';
+import { UserRole } from '@prisma/client';
 
 @Controller('api/auth')
 export class AuthController {
@@ -83,23 +82,24 @@ export class AuthController {
     }
   }
 
-  @Get()
-  findAll() {
-    return this.authService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.authService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAuthDto: UpdateAuthDto) {
-    return this.authService.update(+id, updateAuthDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.authService.remove(+id);
+  @Post('change-password')
+  @UseGuards(AuthGuard)
+  @Roles(UserRole.user, UserRole.admin, UserRole.vendor)
+  async changePassword(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Next() next: NextFunction,
+  ) {
+    try {
+      const result = await this.authService.changePasswordDB(
+        req?.user,
+        req?.body,
+      );
+      return res.send(
+        successResponse(result, HttpStatus.OK, 'Password change'),
+      );
+    } catch (error) {
+      next(error);
+    }
   }
 }

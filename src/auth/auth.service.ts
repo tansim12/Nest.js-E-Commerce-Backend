@@ -1,5 +1,4 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { UpdateAuthDto } from './dto/update-auth.dto';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from 'src/prisma.service';
 import * as bcrypt from 'bcrypt';
@@ -139,19 +138,37 @@ export class AuthService {
     };
   }
 
-  findAll() {
-    return `This action returns all auth`;
-  }
+  async changePasswordDB(user: any, payload: any) {
+    const userData = await this.prisma.user.findUniqueOrThrow({
+      where: {
+        email: user.email,
+        status: UserStatus.active,
+      },
+    });
 
-  findOne(id: number) {
-    return `This action returns a #${id} auth`;
-  }
+    const isCorrectPassword: boolean = await bcrypt.compare(
+      payload.oldPassword,
+      userData.password,
+    );
 
-  update(id: number, updateAuthDto: UpdateAuthDto) {
-    return `This action updates a #${id} auth`;
-  }
+    if (!isCorrectPassword) {
+      throw new Error('Password incorrect!');
+    }
 
-  remove(id: number) {
-    return `This action removes a #${id} auth`;
+    const hashedPassword: string = await bcrypt.hash(payload.newPassword, 12);
+
+    await this.prisma.user.update({
+      where: {
+        email: userData.email,
+      },
+      data: {
+        password: hashedPassword,
+        lastPasswordChange: new Date(),
+      },
+    });
+
+    return {
+      message: 'Password changed successfully!',
+    };
   }
 }
