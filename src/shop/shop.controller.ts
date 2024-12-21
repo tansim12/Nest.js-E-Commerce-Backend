@@ -157,4 +157,24 @@ export class ShopController {
       next(error);
     }
   }
+  //  shopReview
+  @Put('/user/shop-review')
+  @UseGuards(AuthGuard)
+  @UsePipes(new ZodValidationPipe(shopFollowSchema.createShopReviewSchema))
+  @Roles(UserRole.admin, UserRole.user, UserRole.vendor)
+  async shopReview(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Next() next: NextFunction,
+    @Body() body: any,
+  ) {
+    try {
+      const result = await this.shopService.shopReviewDB(req?.user, body);
+      res.send(
+        successResponse(result, HttpStatus.OK, 'Shop review successfully done'),
+      );
+    } catch (error) {
+      next(error);
+    }
+  }
 }
