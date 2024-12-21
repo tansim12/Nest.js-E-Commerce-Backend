@@ -138,4 +138,23 @@ export class ShopController {
       next(error);
     }
   }
+  //  findSingleUserFollowDB following
+  @Get('/user/shop-following/:shopId')
+  @UseGuards(AuthGuard)
+  @Roles(UserRole.admin, UserRole.user, UserRole.vendor)
+  async findSingleUserFollow(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Next() next: NextFunction,
+  ) {
+    try {
+      const result = await this.shopService.findSingleUserFollowDB(
+        req?.user,
+        req?.params?.shopId,
+      );
+      res.send(successResponse(result, HttpStatus.OK, 'Find user follow'));
+    } catch (error) {
+      next(error);
+    }
+  }
 }
