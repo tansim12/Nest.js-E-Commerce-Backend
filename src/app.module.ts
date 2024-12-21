@@ -7,6 +7,7 @@ import { UserModule } from './user/user.module';
 import configuration from './Common/Config/configuration';
 // import { JwtModule } from '@nestjs/jwt';
 import { CAndSubCModule } from './c-and-sub-c/c-and-sub-c.module';
+import { ShopModule } from './shop/shop.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { CAndSubCModule } from './c-and-sub-c/c-and-sub-c.module';
     AuthModule,
     UserModule,
     CAndSubCModule,
+    ShopModule,
   ],
   controllers: [AppController],
   providers: [AppService],
