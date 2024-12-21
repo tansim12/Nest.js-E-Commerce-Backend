@@ -74,4 +74,29 @@ export class CAndSubCController {
       next(error);
     }
   }
+  // create sub-category
+  @Post('/create-sub-category')
+  @UseGuards(AuthGuard)
+  @Roles(UserRole.admin)
+  @UsePipes(
+    new ZodValidationPipe(categoryAndSubCategorySchema.createSubCategorySchema),
+  )
+  async createSubCategory(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Next() next: NextFunction,
+    @Body() body: any,
+  ) {
+    try {
+      const result = await this.cAndSubCService.createSubCategoryDB(
+        req?.user,
+        body,
+      );
+      return res.send(
+        successResponse(result, HttpStatus.OK, 'create sub-category '),
+      );
+    } catch (error) {
+      next(error);
+    }
+  }
 }
