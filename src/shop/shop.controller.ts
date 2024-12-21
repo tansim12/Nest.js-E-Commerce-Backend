@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   HttpStatus,
   Next,
   Post,
@@ -18,6 +19,8 @@ import { Roles } from 'src/Common/decorators/role.decorator';
 import { UserRole } from '@prisma/client';
 import { NextFunction, Request, Response } from 'express';
 import { successResponse } from 'src/Common/Re-useable/successResponse';
+import pick from 'src/Common/shared/pick';
+import { shopFilterAbleFields } from './shop.const';
 
 @Controller('api/shop')
 export class ShopController {
@@ -61,6 +64,25 @@ export class ShopController {
       return res.send(
         successResponse(result, HttpStatus.OK, 'Shop info update'),
       );
+    } catch (error) {
+      next(error);
+    }
+  }
+  // find all shop public
+  @Get('/')
+  async findAllShopPublic(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Next() next: NextFunction,
+  ) {
+    try {
+      const filters = pick(req.query, shopFilterAbleFields);
+      const options = pick(req.query, ['limit', 'page', 'sortBy', 'sortOrder']);
+      const result = await this.shopService.findAllShopPublicDB(
+        filters,
+        options,
+      );
+      return res.send(successResponse(result, HttpStatus.OK, 'Find all Shop'));
     } catch (error) {
       next(error);
     }
