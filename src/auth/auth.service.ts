@@ -1,9 +1,15 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  ForbiddenException,
+  HttpException,
+  HttpStatus,
+  Injectable,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from 'src/prisma.service';
 import * as bcrypt from 'bcrypt';
 import { JwtHelperService } from 'src/Common/helper/jwtHelpers';
 import { UserStatus } from '@prisma/client';
+import { emailSender } from 'src/Common/utils/emailSender';
 
 @Injectable()
 export class AuthService {
@@ -170,5 +176,79 @@ export class AuthService {
     return {
       message: 'Password changed successfully!',
     };
+  }
+
+  //todo nodemaler problem here
+  async forgotPasswordDB(payload: { email: string }) {
+    const userData = await this.prisma.user.findUniqueOrThrow({
+      where: {
+        email: payload.email,
+        status: UserStatus.active,
+      },
+    });
+
+    const resetPassToken = this.jwtHelperService.generateToken(
+      { id: userData.id, email: userData.email, role: userData.role },
+      this.configService.get('jwt.reset_pass_secret'),
+      this.configService.get('jwt.reset_pass_token_expires_in'),
+    );
+    //console.log(resetPassToken)
+
+    const resetPassLink =
+      this.configService.get('reset_pass_link') +
+      `?userId=${userData.id}&token=${resetPassToken}`;
+    // `${process.env.FRONTEND_URL}/forget-password?id=${user.id}&token=${resetToken} `
+
+    await emailSender(
+      userData.email,
+      `
+        <div>
+            <p>Dear User,</p>
+            <p>Your password reset link 
+                <a href=${resetPassLink}>
+                    <button>
+                        Reset Password
+                    </button>
+                </a>
+            </p>
+  
+        </div>
+        `,
+      this.configService,
+    );
+  }
+
+  async resetPasswordDB(
+    token: string,
+    payload: { id: string; password: string },
+  ) {
+    await this.prisma.user.findUniqueOrThrow({
+      where: {
+        id: payload.id,
+        status: UserStatus.active,
+      },
+    });
+
+    const isValidToken = this.jwtHelperService.verifyToken(
+      token,
+      this.configService.get('jwt.reset_pass_secret'),
+    );
+
+    if (!isValidToken) {
+      throw new ForbiddenException('Forbidden!');
+    }
+
+    // hash password
+    const password = await bcrypt.hash(payload.password, 12);
+
+    // update into database
+    await this.prisma.user.update({
+      where: {
+        id: payload.id,
+      },
+      data: {
+        password,
+      },
+    });
   }
 }

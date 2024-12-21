@@ -5,7 +5,6 @@ export const emailSender = async (
   to: string,
   html: string,
   configService: ConfigService,
-  //todo send config service inside emailSender
 ) => {
   // Retrieve email configuration values from ConfigService
   const email = configService.get<string>('emailSender.email');

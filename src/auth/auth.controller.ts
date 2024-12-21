@@ -65,6 +65,7 @@ export class AuthController {
       next(error);
     }
   }
+
   @Post('refresh-token')
   async refreshToken(
     @Req() req: Request,
@@ -97,6 +98,41 @@ export class AuthController {
       );
       return res.send(
         successResponse(result, HttpStatus.OK, 'Password change'),
+      );
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  @Post('forget-password')
+  @UseGuards(AuthGuard)
+  @Roles(UserRole.user, UserRole.admin, UserRole.vendor)
+  async forgotPassword(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Next() next: NextFunction,
+  ) {
+    try {
+      const result = await this.authService.forgotPasswordDB(req?.body);
+      return res.send(
+        successResponse(result, HttpStatus.OK, 'email send message'),
+      );
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  @Post('reset-password')
+  async resetPassword(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Next() next: NextFunction,
+  ) {
+    try {
+      const token = req.headers.authorization || '';
+      const result = await this.authService.resetPasswordDB(token, req?.body);
+      return res.send(
+        successResponse(result, HttpStatus.OK, 'Password change done'),
       );
     } catch (error) {
       next(error);
