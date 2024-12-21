@@ -193,4 +193,25 @@ export class ShopController {
       next(error);
     }
   }
+  // adminFindAllShopDB
+  @Get('/admin/find-all-shops')
+  @UseGuards(AuthGuard)
+  @Roles(UserRole.admin)
+  async adminFindAllShop(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Next() next: NextFunction,
+  ) {
+    try {
+      const filters = pick(req.query, shopFilterAbleFields);
+      const options = pick(req.query, ['limit', 'page', 'sortBy', 'sortOrder']);
+      const result = await this.shopService.adminFindAllShopDB(
+        filters,
+        options,
+      );
+      res.send(successResponse(result, HttpStatus.OK, 'Find all Shop'));
+    } catch (error) {
+      next(error);
+    }
+  }
 }
