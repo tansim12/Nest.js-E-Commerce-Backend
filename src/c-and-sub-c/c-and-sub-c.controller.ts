@@ -151,4 +151,67 @@ export class CAndSubCController {
       next(error);
     }
   }
+  // find all sub category
+  @Get('/sub-category')
+  @UseGuards(AuthGuard)
+  @Roles(UserRole.admin)
+  async findAllSubCategory(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Next() next: NextFunction,
+  ) {
+    try {
+      const filters = pick(req.query, categoryFilterAbleFields);
+      const options = pick(req.query, ['limit', 'page', 'sortBy', 'sortOrder']);
+      const result = await this.cAndSubCService.findAllSubCategoryDB(
+        filters,
+        options,
+      );
+      return res.send(
+        successResponse(result, HttpStatus.OK, 'find all sub category '),
+      );
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  // exist all  category
+  @Get('/category/admin/allCategory')
+  @UseGuards(AuthGuard)
+  @Roles(UserRole.admin, UserRole.vendor)
+  async existFindAllCategory(@Res() res: Response, @Next() next: NextFunction) {
+    try {
+      const result = await this.cAndSubCService.existFindAllCategoryDB();
+      return res.send(
+        successResponse(result, HttpStatus.OK, 'find all exist category '),
+      );
+    } catch (error) {
+      next(error);
+    }
+  }
+  // singleCategoryBaseFindAllSubCategory
+  @Get('/category/categoryBaseSubCategory/:categoryId')
+  @UseGuards(AuthGuard)
+  @Roles(UserRole.admin, UserRole.vendor)
+  async singleCategoryBaseFindAllSubCategory(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Next() next: NextFunction,
+  ) {
+    try {
+      const result =
+        await this.cAndSubCService.singleCategoryBaseFindAllSubCategoryDB(
+          req?.params?.categoryId,
+        );
+      return res.send(
+        successResponse(
+          result,
+          HttpStatus.OK,
+          'Category base find all sub category just name and id send',
+        ),
+      );
+    } catch (error) {
+      next(error);
+    }
+  }
 }
