@@ -5,6 +5,7 @@ import {
   HttpStatus,
   Next,
   Post,
+  Put,
   Req,
   Res,
   UseGuards,
@@ -63,6 +64,28 @@ export class ProductController {
       return res.send(
         successResponse(result, HttpStatus.OK, 'create product '),
       );
+    } catch (error) {
+      next(error);
+    }
+  }
+  // update product
+  @Put('/:productId')
+  @UseGuards(AuthGuard)
+  @UsePipes(new ZodValidationPipe(productSchema.updateProductValidationSchema))
+  @Roles(UserRole.vendor, UserRole.admin)
+  async updateProductDB(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Next() next: NextFunction,
+    @Body() body: any,
+  ) {
+    try {
+      const result = await this.productService.updateProductDB(
+        req?.user,
+        req?.params?.productId,
+        body,
+      );
+      res.send(successResponse(result, HttpStatus.OK, 'Product updated'));
     } catch (error) {
       next(error);
     }
