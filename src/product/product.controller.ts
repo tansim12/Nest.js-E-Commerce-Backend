@@ -247,4 +247,58 @@ export class ProductController {
       next(error);
     }
   }
+
+  //todo check when payment done
+  // productReviewByPayment
+  @Put('/payment/review/:paymentId')
+  @UseGuards(AuthGuard)
+  @Roles(UserRole.user, UserRole.admin, UserRole.vendor)
+  async productReviewByPayment(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Next() next: NextFunction,
+  ) {
+    try {
+      const result = await this.productService.productReviewByPaymentDB(
+        req?.user,
+        req?.params?.paymentId,
+        req?.body,
+      );
+      res.send(
+        successResponse(
+          result,
+          HttpStatus.OK,
+          'Product review by payment create done',
+        ),
+      );
+    } catch (error) {
+      next(error);
+    }
+  }
+  //todo check when payment done
+  // productReviewByPayment
+  @Post('/payment/review-replied')
+  @UseGuards(AuthGuard)
+  @Roles(UserRole.admin, UserRole.vendor)
+  async vendorOrShopRepliedReviewsDB(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Next() next: NextFunction,
+  ) {
+    try {
+      const result = await this.productService.vendorOrShopRepliedReviewsDB(
+        req?.user,
+        req?.body,
+      );
+      res.send(
+        successResponse(
+          result,
+          HttpStatus.OK,
+          'Product review by payment create done',
+        ),
+      );
+    } catch (error) {
+      next(error);
+    }
+  }
 }
