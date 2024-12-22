@@ -8,7 +8,11 @@ async function bootstrap() {
 
   // Enable CORS with credentials
   app.enableCors({
-    origin: ['http://localhost:3000'], // Allow specific origins
+    origin: [
+      'http://localhost:3000',
+      'http://localhost:3001',
+      'https://e-commerce-next-a9.vercel.app',
+    ], // Allow specific origins
     credentials: true, // Allow cookies to be sent
   });
 
