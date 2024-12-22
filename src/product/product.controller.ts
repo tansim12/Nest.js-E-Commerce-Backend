@@ -301,4 +301,23 @@ export class ProductController {
       next(error);
     }
   }
+  //todo check when review done
+  // findSingleProductAllReview
+  @Get('/public/payment/review-info/:productId')
+  async findSingleProductAllReviewDB(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Next() next: NextFunction,
+  ) {
+    try {
+      const result = await this.productService.findSingleProductAllReviewDB(
+        req?.params?.productId,
+      );
+      res.send(
+        successResponse(result, HttpStatus.OK, 'Product all review find '),
+      );
+    } catch (error) {
+      next(error);
+    }
+  }
 }
