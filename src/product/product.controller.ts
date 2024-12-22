@@ -176,4 +176,25 @@ export class ProductController {
       next(error);
     }
   }
+  // publicFlashSaleProduct
+  @Get('/public/flash-sale/products')
+  async publicFlashSaleProduct(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Next() next: NextFunction,
+  ) {
+    try {
+      const filters = pick(req.query, shopFilterAbleFields);
+      const options = pick(req.query, ['limit', 'page', 'sortBy', 'sortOrder']);
+      const result = await this.productService.publicFlashSaleProductDB(
+        filters,
+        options,
+      );
+      res.send(
+        successResponse(result, HttpStatus.OK, 'find flash sale Products'),
+      );
+    } catch (error) {
+      next(error);
+    }
+  }
 }
