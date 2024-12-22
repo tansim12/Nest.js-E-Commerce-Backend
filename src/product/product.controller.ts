@@ -197,4 +197,18 @@ export class ProductController {
       next(error);
     }
   }
+  // publicPromoCheck
+  @Post('/promo/check')
+  async publicPromoCheck(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Next() next: NextFunction,
+  ) {
+    try {
+      const result = await this.productService.publicPromoCheckDB(req?.body);
+      res.send(successResponse(result, HttpStatus.OK, 'Promo Check '));
+    } catch (error) {
+      next(error);
+    }
+  }
 }
