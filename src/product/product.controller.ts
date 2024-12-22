@@ -227,4 +227,24 @@ export class ProductController {
       next(error);
     }
   }
+  // findRelevantProduct
+  @Post('/relevant/relevant-products')
+  async findRelevantProduct(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Next() next: NextFunction,
+  ) {
+    try {
+      const filters = pick(req.query, []);
+      const options = pick(req.query, ['limit', 'page', 'sortBy', 'sortOrder']);
+      const result = await this.productService.findRelevantProductDB(
+        req?.body || [],
+        filters,
+        options,
+      );
+      res.send(successResponse(result, HttpStatus.OK, 'find relevant product'));
+    } catch (error) {
+      next(error);
+    }
+  }
 }
