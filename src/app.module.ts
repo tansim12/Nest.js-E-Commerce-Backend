@@ -10,6 +10,7 @@ import { CAndSubCModule } from './c-and-sub-c/c-and-sub-c.module';
 import { ShopModule } from './shop/shop.module';
 import { ProductModule } from './product/product.module';
 import { PaymentModule } from './payment/payment.module';
+import { AnalyticsModule } from './analytics/analytics.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { PaymentModule } from './payment/payment.module';
     ShopModule,
     ProductModule,
     PaymentModule,
+    AnalyticsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
