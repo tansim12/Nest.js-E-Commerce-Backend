@@ -115,4 +115,27 @@ export class ProductController {
       next(error);
     }
   }
+  // adminFindAllProducts
+  @Get('/admin/all-products')
+  @UseGuards(AuthGuard)
+  @Roles(UserRole.admin)
+  async adminFindAllProducts(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Next() next: NextFunction,
+  ) {
+    try {
+      const filters = pick(req.query, shopFilterAbleFields);
+      const options = pick(req.query, ['limit', 'page', 'sortBy', 'sortOrder']);
+      const result = await this.productService.adminFindAllProductsDB(
+        filters,
+        options,
+      );
+      res.send(
+        successResponse(result, HttpStatus.OK, 'admin find all Products'),
+      );
+    } catch (error) {
+      next(error);
+    }
+  }
 }
