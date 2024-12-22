@@ -138,4 +138,25 @@ export class ProductController {
       next(error);
     }
   }
+  // publicTopSaleProduct
+  @Get('/public/top-sale-products')
+  async publicTopSaleProduct(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Next() next: NextFunction,
+  ) {
+    try {
+      const filters = pick(req.query, shopFilterAbleFields);
+      const options = pick(req.query, ['limit', 'page', 'sortBy', 'sortOrder']);
+      const result = await this.productService.publicTopSaleProductDB(
+        filters,
+        options,
+      );
+      res.send(
+        successResponse(result, HttpStatus.OK, 'find top sale Products'),
+      );
+    } catch (error) {
+      next(error);
+    }
+  }
 }
