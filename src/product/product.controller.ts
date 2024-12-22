@@ -21,6 +21,7 @@ import { productSchema } from './product.zodSchema';
 import { UserRole } from '@prisma/client';
 import { Roles } from 'src/Common/decorators/role.decorator';
 import { AuthGuard } from 'src/Common/guard/auth.guard';
+import { shopFilterAbleFields } from 'src/shop/shop.const';
 
 @Controller('api/product')
 export class ProductController {
@@ -86,6 +87,30 @@ export class ProductController {
         body,
       );
       res.send(successResponse(result, HttpStatus.OK, 'Product updated'));
+    } catch (error) {
+      next(error);
+    }
+  }
+  // findVendorShopAllProductsDB
+  @Get('/shop/shop-all-products')
+  @UseGuards(AuthGuard)
+  @Roles(UserRole.vendor)
+  async findVendorShopAllProducts(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Next() next: NextFunction,
+  ) {
+    try {
+      const filters = pick(req.query, shopFilterAbleFields);
+      const options = pick(req.query, ['limit', 'page', 'sortBy', 'sortOrder']);
+      const result = await this.productService.findVendorShopAllProductsDB(
+        req?.user,
+        filters,
+        options,
+      );
+      res.send(
+        successResponse(result, HttpStatus.OK, 'vendor find all product'),
+      );
     } catch (error) {
       next(error);
     }
