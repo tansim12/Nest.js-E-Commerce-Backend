@@ -320,4 +320,25 @@ export class ProductController {
       next(error);
     }
   }
+
+  // vendorFindHisAllProduct
+  @Get('/vendor/find-his-all-product')
+  @UseGuards(AuthGuard)
+  @Roles(UserRole.vendor)
+  async vendorFindHisAllProduct(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Next() next: NextFunction,
+  ) {
+    try {
+      const result = await this.productService.vendorFindHisAllProductDB(
+        req?.user,
+      );
+      res.send(
+        successResponse(result, HttpStatus.OK, 'Vendor Find his all product'),
+      );
+    } catch (error) {
+      next(error);
+    }
+  }
 }
