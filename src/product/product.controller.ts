@@ -341,4 +341,25 @@ export class ProductController {
       next(error);
     }
   }
+  // vendorFindSingleProduct
+  @Get('/vendor/find-one-product/:productId')
+  @UseGuards(AuthGuard)
+  @Roles(UserRole.vendor)
+  async vendorFindSingleProduct(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Next() next: NextFunction,
+  ) {
+    try {
+      const result = await this.productService.vendorFindSingleProductDB(
+        req?.user,
+        req?.params?.productId,
+      );
+      res.send(
+        successResponse(result, HttpStatus.OK, 'Vendor Find one product'),
+      );
+    } catch (error) {
+      next(error);
+    }
+  }
 }
