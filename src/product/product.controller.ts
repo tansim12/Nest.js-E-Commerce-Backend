@@ -159,4 +159,21 @@ export class ProductController {
       next(error);
     }
   }
+
+  // publicSingleProduct
+  @Get('/public/single-product/:productId')
+  async publicSingleProduct(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Next() next: NextFunction,
+  ) {
+    try {
+      const result = await this.productService.publicSingleProductDb(
+        req?.params?.productId,
+      );
+      res.send(successResponse(result, HttpStatus.OK, 'Single Product Find '));
+    } catch (error) {
+      next(error);
+    }
+  }
 }
