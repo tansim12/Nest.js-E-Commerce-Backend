@@ -211,4 +211,20 @@ export class ProductController {
       next(error);
     }
   }
+  // publicCompareProduct
+  @Post('/compare/compare-products')
+  async publicCompareProduct(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Next() next: NextFunction,
+  ) {
+    try {
+      const result = await this.productService.publicCompareProductDB(
+        req?.body,
+      );
+      res.send(successResponse(result, HttpStatus.OK, 'find compare product'));
+    } catch (error) {
+      next(error);
+    }
+  }
 }
