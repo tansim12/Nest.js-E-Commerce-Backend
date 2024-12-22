@@ -1,6 +1,4 @@
 import axios from 'axios';
-import dotenv from 'dotenv';
-dotenv.config();
 
 export const verifyPayment = async (txnId: string) => {
   const response = await axios.get(
