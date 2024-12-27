@@ -9,11 +9,12 @@ import { PrismaService } from 'src/prisma.service';
 import * as bcrypt from 'bcrypt';
 import { JwtHelperService } from 'src/Common/helper/jwtHelpers';
 import { UserStatus } from '@prisma/client';
-import { emailSender } from 'src/Common/utils/emailSender';
+import { EmailUtils } from 'src/Common/utils/emil.utils';
 
 @Injectable()
 export class AuthService {
   constructor(
+    private readonly emailUtils: EmailUtils,
     private configService: ConfigService,
     private prisma: PrismaService,
     private jwtHelperService: JwtHelperService,
@@ -199,22 +200,18 @@ export class AuthService {
       `?userId=${userData.id}&token=${resetPassToken}`;
     // `${process.env.FRONTEND_URL}/forget-password?id=${user.id}&token=${resetToken} `
 
-    await emailSender(
+    await this.emailUtils.sendEmail(
       userData.email,
+      'E-Commerce password reset 5min !',
       `
         <div>
-            <p>Dear User,</p>
-            <p>Your password reset link 
-                <a href=${resetPassLink}>
-                    <button>
-                        Reset Password
-                    </button>
-                </a>
-            </p>
-  
+          <p>Dear User,</p>
+          <p>Your password reset link is below:</p>
+          <a href="${resetPassLink}">
+            <button>Reset Password</button>
+          </a>
         </div>
-        `,
-      this.configService,
+      `,
     );
   }
 
