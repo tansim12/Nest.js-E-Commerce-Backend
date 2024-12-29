@@ -248,7 +248,6 @@ export class ProductController {
     }
   }
 
-  //todo check when payment done
   // productReviewByPayment
   @Put('/payment/review/:paymentId')
   @UseGuards(AuthGuard)
@@ -275,7 +274,7 @@ export class ProductController {
       next(error);
     }
   }
-  //todo check when payment done
+
   // productReviewByPayment
   @Post('/payment/review-replied')
   @UseGuards(AuthGuard)
@@ -301,7 +300,7 @@ export class ProductController {
       next(error);
     }
   }
-  //todo check when review done
+
   // findSingleProductAllReview
   @Get('/public/payment/review-info/:productId')
   async findSingleProductAllReviewDB(
@@ -357,6 +356,24 @@ export class ProductController {
       );
       res.send(
         successResponse(result, HttpStatus.OK, 'Vendor Find one product'),
+      );
+    } catch (error) {
+      next(error);
+    }
+  }
+  // findUserAllReviewsDB
+  @Get('/user/find-his-review')
+  @UseGuards(AuthGuard)
+  @Roles(UserRole.vendor, UserRole.user, UserRole.admin)
+  async findUserAllReviews(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Next() next: NextFunction,
+  ) {
+    try {
+      const result = await this.productService.findUserAllReviewsDB(req?.user);
+      res.send(
+        successResponse(result, HttpStatus.OK, 'User Find his all review'),
       );
     } catch (error) {
       next(error);

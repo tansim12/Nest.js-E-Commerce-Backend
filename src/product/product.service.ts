@@ -890,4 +890,29 @@ export class ProductService {
     });
     return result;
   }
+
+  async findUserAllReviewsDB(tokenUser: any) {
+    const result = await this.prisma.productReview.findMany({
+      where: {
+        userId: tokenUser?.id,
+      },
+      include: {
+        payment: {
+          select: {
+            paymentAndProduct: {
+              select: {
+                product: {
+                  select: {
+                    images: true,
+                    productName: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+    return result;
+  }
 }
