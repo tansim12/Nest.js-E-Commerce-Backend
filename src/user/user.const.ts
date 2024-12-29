@@ -5,3 +5,8 @@ export const userFilterAbleFields: string[] = [
   'email',
   'searchTerm',
 ];
+export const userWishListSearchAbleFields: string[] = ['productId'];
+export const userWishListFilterAbleFields: string[] = [
+  'productId',
+  'searchTerm',
+];

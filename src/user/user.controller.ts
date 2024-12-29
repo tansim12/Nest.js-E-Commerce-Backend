@@ -7,6 +7,7 @@ import {
   Next,
   HttpStatus,
   Put,
+  Post,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { AuthGuard } from 'src/Common/guard/auth.guard';
@@ -14,7 +15,10 @@ import { Roles } from 'src/Common/decorators/role.decorator';
 import { UserRole } from '@prisma/client';
 import { NextFunction, Request, Response } from 'express';
 import { successResponse } from 'src/Common/Re-useable/successResponse';
-import { userFilterAbleFields } from './user.const';
+import {
+  userFilterAbleFields,
+  userWishListFilterAbleFields,
+} from './user.const';
 import pick from 'src/Common/shared/pick';
 
 @Controller('api/user')
@@ -110,6 +114,53 @@ export class UserController {
       const result = await this.userService.getSingleUserDB(req.params?.userId);
       return res.send(
         successResponse(result, HttpStatus.OK, 'update my profile'),
+      );
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  // createWishlist
+  @Post('/wishList')
+  @UseGuards(AuthGuard)
+  @Roles(UserRole.admin, UserRole.vendor, UserRole.user)
+  async createWishlist(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Next() next: NextFunction,
+  ) {
+    try {
+      const result = await this.userService.createWishlistDB(
+        req?.user,
+        req?.body,
+      );
+      return res.send(
+        successResponse(result, HttpStatus.OK, 'wish list create'),
+      );
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  // findUserAllWishList
+  @Get('/wishList/all')
+  @UseGuards(AuthGuard)
+  @Roles(UserRole.admin, UserRole.vendor, UserRole.user)
+  async findUserAllWishList(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Next() next: NextFunction,
+  ) {
+    try {
+      const filters = pick(req.query, userWishListFilterAbleFields);
+      const options = pick(req.query, ['limit', 'page', 'sortBy', 'sortOrder']);
+      const result = await this.userService.findUserAllWishListDB(
+        filters,
+        options,
+        req?.user,
+      );
+      return res.send(
+        successResponse(result, HttpStatus.OK, 'Find All User wishlist'),
       );
     } catch (error) {
       next(error);

@@ -4,7 +4,10 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'src/prisma.service';
 import { IPaginationOptions } from 'src/Common/interface/pagination';
 import { paginationHelper } from 'src/Common/helper/paginationHelper';
-import { userSearchAbleFields } from './user.const';
+import {
+  userSearchAbleFields,
+  userWishListSearchAbleFields,
+} from './user.const';
 import { Prisma, UserStatus } from '@prisma/client';
 
 @Injectable()
@@ -198,5 +201,82 @@ export class UserService {
       },
     });
     return result;
+  }
+
+  async createWishlistDB(tokenUser: any, payload: any) {
+    const result = await this.prisma.wishlist.create({
+      data: {
+        userId: tokenUser?.id,
+        productId: payload?.productId,
+      },
+    });
+    return result;
+  }
+  async findUserAllWishListDB(
+    queryObj: any,
+    options: IPaginationOptions,
+    tokenUser: any,
+  ) {
+    const { page, limit, skip } = paginationHelper.calculatePagination(options);
+    const { searchTerm, ...filterData } = queryObj;
+
+    const andCondition = [];
+    if (queryObj.searchTerm) {
+      andCondition.push({
+        OR: userWishListSearchAbleFields?.map((field) => ({
+          [field]: {
+            contains: queryObj.searchTerm,
+            mode: 'insensitive',
+          },
+        })),
+      });
+    }
+    if (Object.keys(filterData).length > 0) {
+      andCondition.push({
+        AND: Object.keys(filterData).map((key) => ({
+          [key]: {
+            equals: filterData[key as never],
+          },
+        })),
+      });
+    }
+
+    const whereConditions: Prisma.UserWhereInput = { AND: andCondition as any };
+
+    const result = await this.prisma.wishlist.findMany({
+      where: {
+        ...(whereConditions as any),
+        userId: tokenUser?.id,
+      },
+      select: {
+        product: true,
+      },
+      skip,
+      take: limit,
+      orderBy:
+        options.sortBy && options.sortOrder
+          ? {
+              [options.sortBy]: options.sortOrder,
+            }
+          : {
+              createdAt: 'desc',
+            },
+    });
+
+    const total = await this.prisma.wishlist.count({
+      where: {
+        ...(whereConditions as any),
+        userId: tokenUser?.id,
+      },
+    });
+    const meta = {
+      page,
+      limit,
+      total,
+    };
+    return {
+      meta,
+      result,
+    };
   }
 }

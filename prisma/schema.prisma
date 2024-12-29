@@ -13,19 +13,17 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
-
 model User {
-  id                 String        @id @default(uuid())
+  id                 String          @id @default(uuid())
   password           String
   name               String
-  email              String        @unique
-  status             UserStatus    @default(active)
-  isDelete           Boolean       @default(false)
-  role               UserRole      @default(user)
+  email              String          @unique
+  status             UserStatus      @default(active)
+  isDelete           Boolean         @default(false)
+  role               UserRole        @default(user)
   lastPasswordChange DateTime?
-  createdAt          DateTime      @default(now())
-  updatedAt          DateTime      @updatedAt
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
   userProfile        UserProfile[]
   shop               Shop?
   shopReview         ShopReview[]
@@ -33,7 +31,8 @@ model User {
   category           Category[]
   subCategory        SubCategory[]
   payment            Payment[]
-  productReview     ProductReview[]
+  productReview      ProductReview[]
+  wishlist           Wishlist[]
 
   @@map("users")
 }
@@ -67,7 +66,7 @@ model Shop {
   shopType      String?
   address       String?
   contactNumber String?
-  isBlocked     Boolean       @default(false)
+  isBlocked     Boolean      @default(false)
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
   shopReview    ShopReview[]
@@ -136,27 +135,26 @@ model SubCategory {
   @@map("subCategories")
 }
 
-
 model Product {
-  id                 String    @id @default(uuid())
-  productName        String
-  quantity           Int       @default(1)
-  isAvailable        Boolean   @default(true)
-  totalBuy           Int       @default(0)
-  price              Int
-  discount           Int?
-  promo              String?
-  isActivePromo      Boolean   @default(false)
-  isFlashSaleOffer   Boolean   @default(false)
-  flashSaleDiscount  Int?      @default(0)
-  flashSaleStartDate DateTime?
-  flashSaleEndDate   DateTime?
-  shopId             String
-  shop               Shop      @relation(fields: [shopId], references: [id])
-  description        String
-  totalSubmitRating  Int       @default(0)
-  averageRating      Int       @default(0)
-  totalUserGiveRating Int     @default(0)
+  id                  String    @id @default(uuid())
+  productName         String
+  quantity            Int       @default(1)
+  isAvailable         Boolean   @default(true)
+  totalBuy            Int       @default(0)
+  price               Int
+  discount            Int?
+  promo               String?
+  isActivePromo       Boolean   @default(false)
+  isFlashSaleOffer    Boolean   @default(false)
+  flashSaleDiscount   Int?      @default(0)
+  flashSaleStartDate  DateTime?
+  flashSaleEndDate    DateTime?
+  shopId              String
+  shop                Shop      @relation(fields: [shopId], references: [id])
+  description         String
+  totalSubmitRating   Int       @default(0)
+  averageRating       Int       @default(0)
+  totalUserGiveRating Int       @default(0)
 
   images            String[]
   categoryId        String
@@ -167,61 +165,79 @@ model Product {
   createdAt         DateTime            @default(now())
   updatedAt         DateTime            @updatedAt
   paymentAndProduct PaymentAndProduct[]
+  wishlist          Wishlist[]
 
   @@map("products")
 }
 
-
-
 model ProductReview {
   userId    String
   user      User     @relation(fields: [userId], references: [id])
-  paymentId    String
-  payment      Payment     @relation(fields: [paymentId], references: [id])
+  paymentId String
+  payment   Payment  @relation(fields: [paymentId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  userMessage  String?
-  shopMessage  String?
-  rating   Int?
-  isDelete Boolean @default(false)
+  userMessage String?
+  shopMessage String?
+  rating      Int?
+  isDelete    Boolean @default(false)
 
   @@id([userId, paymentId])
   @@map("productReviews")
 }
 
 model PaymentAndProduct {
-  id          String   @id @default(uuid())
-  productId   String
-  product     Product  @relation(fields: [productId], references: [id])
-  paymentId   String
-  payment     Payment? @relation(fields: [paymentId], references: [id])
+  id             String        @id @default(uuid())
+  productId      String
+  product        Product       @relation(fields: [productId], references: [id])
+  paymentId      String
+  payment        Payment?      @relation(fields: [paymentId], references: [id])
   selectQuantity Int
   payTotalAmount Int
-  paymentStatus PaymentStatus @default(pending)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  paymentStatus  PaymentStatus @default(pending)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
 
   // @@unique([paymentId, productId]) // Ensures unique product-payment pairing
 }
 
 model Payment {
-  id            String   @id @default(uuid())
+  id            String        @id @default(uuid())
   userId        String
-  user          User     @relation(fields: [userId], references: [id])
+  user          User          @relation(fields: [userId], references: [id])
   shopId        String
-  shop          Shop     @relation(fields: [shopId], references: [id])
+  shop          Shop          @relation(fields: [shopId], references: [id])
   amount        Int
-  mer_txnid        String?
+  mer_txnid     String?
   txId          String
   paymentStatus PaymentStatus @default(pending)
   payment_type  String?
   approval_code String?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
 
   paymentAndProduct PaymentAndProduct[]
-   productReview     ProductReview[]
+  productReview     ProductReview[]
+}
+
+model Newsletter {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Wishlist {
+  id        String  @id @default(uuid())
+  userId    String  
+  user      User    @relation(fields: [userId], references: [id])
+  productId String 
+  product   Product @relation(fields: [productId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@unique([userId, productId]) // Composite unique constraint
 }
 
 enum UserRole {
