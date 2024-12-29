@@ -206,4 +206,19 @@ export class AnalyticsService {
       totalFlashSaleProducts,
     };
   }
+
+  async createNewsletterDB(payload: any) {
+    const result = await this.prisma.newsletter.create({
+      data: payload,
+    });
+    return result;
+  }
+  async findAllNewsLetterEmailDB() {
+    const result = await this.prisma.newsletter.findMany({
+      orderBy: {
+        updatedAt: 'desc',
+      },
+    });
+    return result;
+  }
 }

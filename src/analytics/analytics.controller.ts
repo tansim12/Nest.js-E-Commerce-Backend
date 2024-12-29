@@ -3,6 +3,7 @@ import {
   Get,
   HttpStatus,
   Next,
+  Post,
   Req,
   Res,
   UseGuards,
@@ -46,6 +47,36 @@ export class AnalyticsController {
     try {
       const result = await this.analyticsService.shopAnalyticsDB(req?.user);
       res.send(successResponse(result, HttpStatus.OK, 'shop analytics'));
+    } catch (error) {
+      next(error);
+    }
+  }
+  // newsletter crate
+  @Post('/newsletter')
+  async createNewsletter(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Next() next: NextFunction,
+  ) {
+    try {
+      const result = await this.analyticsService.createNewsletterDB(req?.body);
+      res.send(successResponse(result, HttpStatus.OK, 'newsletter create'));
+    } catch (error) {
+      next(error);
+    }
+  }
+  // newsletter crate
+  @Get('/newsletter')
+  @UseGuards(AuthGuard)
+  @Roles(UserRole.admin)
+  async findAllNewsLetterEmail(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Next() next: NextFunction,
+  ) {
+    try {
+      const result = await this.analyticsService.findAllNewsLetterEmailDB();
+      res.send(successResponse(result, HttpStatus.OK, 'newsletter find all'));
     } catch (error) {
       next(error);
     }
