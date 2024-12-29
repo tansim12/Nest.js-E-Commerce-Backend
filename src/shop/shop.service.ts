@@ -134,6 +134,13 @@ export class ShopService {
         ...(whereConditions as any),
         isDelete: false,
       },
+      select: {
+        id: true,
+        logo: true,
+        name: true,
+        _count: true,
+        shopType: true,
+      },
 
       skip,
       take: limit,
@@ -143,7 +150,7 @@ export class ShopService {
               [options.sortBy]: options.sortOrder,
             }
           : {
-              createdAt: 'desc',
+              createdAt: 'asc',
             },
     });
 
