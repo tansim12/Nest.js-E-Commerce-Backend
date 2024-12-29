@@ -912,6 +912,9 @@ export class ProductService {
           },
         },
       },
+      orderBy: {
+        updatedAt: 'desc',
+      },
     });
     return result;
   }
