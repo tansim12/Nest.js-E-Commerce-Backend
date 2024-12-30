@@ -25,4 +25,22 @@ export class EmailUtils {
       html, // HTML ফর্ম্যাট
     });
   }
+
+  async sendManyEmails(
+    emailArray: string[], // ইমেইলের লিস্ট
+    subject: string,
+    html: string,
+  ): Promise<void> {
+    // Promise.all ব্যবহার করে একসাথে সব ইমেইল পাঠানো
+    await Promise.all(
+      emailArray.map((email) =>
+        this.transporter.sendMail({
+          from: `"Group Email Service" <${process.env.EMAIL}>`,
+          to: email,
+          subject,
+          html,
+        }),
+      ),
+    );
+  }
 }

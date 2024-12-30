@@ -2,9 +2,13 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { format } from 'date-fns';
 import { UserRole } from '@prisma/client';
+import { EmailUtils } from 'src/Common/utils/emil.utils';
 @Injectable()
 export class AnalyticsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly emailUtils: EmailUtils,
+  ) {}
   async adminAnalyticsDB() {
     // Aggregate revenue grouped by months
     const monthlyRevenue = await this.prisma.payment.groupBy({
@@ -219,6 +223,16 @@ export class AnalyticsService {
         updatedAt: 'desc',
       },
     });
+    return result;
+  }
+
+  async newsletterGroupMessageSendDB(payload: any) {
+    const result = await this.emailUtils.sendManyEmails(
+      payload?.emailArray,
+      payload?.subject,
+      payload?.message,
+    );
+
     return result;
   }
 }

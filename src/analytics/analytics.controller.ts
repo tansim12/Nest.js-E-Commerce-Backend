@@ -81,4 +81,28 @@ export class AnalyticsController {
       next(error);
     }
   }
+  // newsletterGroupMessageSendDB
+  @Post('/newsletter/group-message')
+  @UseGuards(AuthGuard)
+  @Roles(UserRole.admin)
+  async newsletterGroupMessageSend(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Next() next: NextFunction,
+  ) {
+    try {
+      const result = await this.analyticsService.newsletterGroupMessageSendDB(
+        req?.body,
+      );
+      res.send(
+        successResponse(
+          result,
+          HttpStatus.OK,
+          'newsletter group message send done',
+        ),
+      );
+    } catch (error) {
+      next(error);
+    }
+  }
 }
