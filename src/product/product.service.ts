@@ -360,6 +360,7 @@ export class ProductService {
         },
         shop: {
           select: {
+            id: true,
             logo: true,
             name: true,
             _count: true,
