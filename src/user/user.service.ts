@@ -249,6 +249,7 @@ export class UserService {
         userId: tokenUser?.id,
       },
       select: {
+        id: true,
         product: true,
       },
       skip,
@@ -278,5 +279,15 @@ export class UserService {
       meta,
       result,
     };
+  }
+
+  async singleDeleteWishListProductDB(tokenUser: any, wishListId: any) {
+    const result = await this.prisma.wishlist.delete({
+      where: {
+        userId: tokenUser?.id,
+        id: wishListId,
+      },
+    });
+    return result;
   }
 }

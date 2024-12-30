@@ -8,6 +8,7 @@ import {
   HttpStatus,
   Put,
   Post,
+  Delete,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { AuthGuard } from 'src/Common/guard/auth.guard';
@@ -161,6 +162,27 @@ export class UserController {
       );
       return res.send(
         successResponse(result, HttpStatus.OK, 'Find All User wishlist'),
+      );
+    } catch (error) {
+      next(error);
+    }
+  }
+  // delete wis
+  @Delete('/wishList/all/:id')
+  @UseGuards(AuthGuard)
+  @Roles(UserRole.admin, UserRole.vendor, UserRole.user)
+  async singleDeleteWishListProduct(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Next() next: NextFunction,
+  ) {
+    try {
+      const result = await this.userService.singleDeleteWishListProductDB(
+        req?.user,
+        req?.params?.id,
+      );
+      return res.send(
+        successResponse(result, HttpStatus.OK, ' wishlist delete'),
       );
     } catch (error) {
       next(error);
