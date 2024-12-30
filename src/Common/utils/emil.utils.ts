@@ -35,7 +35,7 @@ export class EmailUtils {
     await Promise.all(
       emailArray.map((email) =>
         this.transporter.sendMail({
-          from: `"Group Email Service" <${process.env.EMAIL}>`,
+          from: `"E-Commerce" <${process.env.EMAIL}>`,
           to: email,
           subject,
           html,
