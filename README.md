@@ -19,7 +19,7 @@ The system is built using **Nest.js**, a progressive framework for building effi
 ## Live Demo / URL
 
 Access the live application at:
-[Live URL](https://nest-e-commerce-backend.vercel.app/)
+[Live URL](https://nest-e-commerce-backend-site.vercel.app/)
 
 ---
 
@@ -28,6 +28,7 @@ Access the live application at:
 This project leverages a modern technology stack:
 
 ### Backend:
+
 - **Nest.js**: Framework for scalable server-side applications.
 - **TypeScript**: Strongly typed programming language that improves code quality.
 - **Node.js**: JavaScript runtime for building the server-side application.
@@ -37,6 +38,7 @@ This project leverages a modern technology stack:
 - **Aamarpay Integration**: For payment processing.
 
 ### Frontend (Optional integration):
+
 - **React.js / Next.js**: For building a responsive and interactive front end.
 
 ---
@@ -58,8 +60,10 @@ This project leverages a modern technology stack:
    ```bash
    git clone https://github.com/tansim12/Nest.js-E-Commerce-Backend.git
    cd Nest.js-E-Commerce-Backend
+   ```
 
 # ⚙️ Configure Environment Variables
+
 ## Create a `.env` file in the root of the project and add the following environment variables:
 
 ```bash
@@ -77,7 +81,7 @@ SECRET_ACCESS_TOKEN_TIME=10d
 SECRET_REFRESH_TOKEN_TIME=365d
 AAMAR_PAY_SEARCH_TNX_BASE_URL=
 AAMAR_PAY_STORE_ID=aamarpaytest,
-AAMAR_PAY_SIGNATURE_KEY= 
+AAMAR_PAY_SIGNATURE_KEY=
 AAMAR_PAY_HIT_API= https://sandbox.aamarpay.com/jsonpost.php
 EMAIL_APP_PASSWORD=
 
@@ -97,7 +101,7 @@ RESET_PASS_TOKEN="YOUR TOKEN SECRET"
 RESET_PASS_TOKEN_EXPIRES_IN=
 RESET_PASS_LINK="http://localhost:5000/forget-password/"
 EMAIL= "your email"
-APP_PASS= 
+APP_PASS=
 STORE_ID="SSL STORE ID"
 STORE_PASS= "SSL STORE PASSWORD"
 FRONTEND_URL="http://localhost:3000"
